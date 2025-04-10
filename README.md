@@ -2,10 +2,37 @@
 
 A chat-only interface where clients request pentests via natural language, human analysts manually perform tests, and findings are delivered conversationally—no automation, no tool integrations, pure human expertise.
 
+## Quick Start
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/surya66/DeepScanAI.git
+cd DeepScanAI
+
+# 2. Run the setup script
+chmod +x setup.sh
+./setup.sh
+
+# 3. Run the application
+# For full application:
+python src/run.py
+
+# OR for minimal demo:
+cd minimal_app
+python -m http.server 3000
+```
+
+Default credentials:
+- **Client**: client@example.com / password123
+- **Analyst**: analyst@example.com / password123
+- **Admin**: admin@growthguard.com / password123
+
+Note: Any user with a growthguard.com email domain will automatically be assigned admin privileges.
+
 ## Table of Contents
 - [Core Architecture](#core-architecture)
 - [Key Features](#key-features)
-- [Installation and Setup](#installation-and-setup)
+- [Detailed Installation and Setup](#detailed-installation-and-setup)
 - [Running the Application](#running-the-application)
 - [Browser Testing Results](#browser-testing-results)
 - [Project Structure](#project-structure)
@@ -43,22 +70,16 @@ Zero false positives with all findings validated by experts. Complex flaws and b
 ### Compliance Ready
 Auto-generated audit logs (Who requested? Who tested?). SOC 2/GDPR-compliant data handling.
 
-## Installation and Setup
+## Detailed Installation and Setup
 
 ### Prerequisites
 - Python 3.10+
 - SQLite (for development) or PostgreSQL (for production)
 - Git
 
-### Setup Steps
+### Manual Setup Steps (Alternative to setup.sh)
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/surya66/DeepScanAI.git
-   cd DeepScanAI
-   ```
-
-2. **Create a virtual environment**
+1. **Create a virtual environment**
    ```bash
    python -m venv venv
    
@@ -69,12 +90,12 @@ Auto-generated audit logs (Who requested? Who tested?). SOC 2/GDPR-compliant dat
    source venv/bin/activate
    ```
 
-3. **Install dependencies**
+2. **Install dependencies**
    ```bash
    pip install -r requirements-light.txt
    ```
 
-4. **Initialize the database**
+3. **Initialize the database**
    ```bash
    cd src
    python manage.py create_db
@@ -104,14 +125,6 @@ Auto-generated audit logs (Who requested? Who tested?). SOC 2/GDPR-compliant dat
 - **Client**: Request pentests, view reports, communicate with analysts
 - **Analyst**: Claim pentest requests, submit findings, communicate with clients
 - **Admin**: Manage users, view all pentests, assign requests manually
-
-### Default Credentials
-
-- **Client**: client@example.com / password123
-- **Analyst**: analyst@example.com / password123
-- **Admin**: admin@growthguard.com / password123
-
-Note: Any user with a growthguard.com email domain will automatically be assigned admin privileges.
 
 ## Browser Testing Results
 
@@ -147,7 +160,6 @@ DeepScan/
 ├── minimal_app/             # Lightweight demo application
 │   ├── app.py               # Flask application for demo
 │   └── index.html           # Main HTML file for static demo
-├── screenshots/             # Testing screenshots
 ├── src/                     # Main application source code
 │   ├── app/                 # Flask application
 │   │   ├── models/          # Database models
@@ -161,6 +173,7 @@ DeepScan/
 │   └── test_scenarios.py    # Test scenarios
 ├── .gitignore               # Git ignore file
 ├── requirements-light.txt   # Lightweight dependencies
+├── setup.sh                 # Setup script for easy installation
 └── README.md                # This file
 ```
 
