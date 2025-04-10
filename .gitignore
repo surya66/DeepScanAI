@@ -1,0 +1,32 @@
+# Ignore Python virtual environment
+venv/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore database files
+*.db
+*.sqlite3
+
+# Ignore environment variables
+.env
+
+# Ignore IDE files
+.idea/
+.vscode/
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore screenshots directory
+screenshots/
+
+# Ignore large binary files
+*.webp
+*.png
+*.jpg
+*.jpeg
+*.gif

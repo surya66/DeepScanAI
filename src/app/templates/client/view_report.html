@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - View Report{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Pentest Report #{{ pentest_request.id }}</h1>
+            <a href="{{ url_for('client.view_request', request_id=pentest_request.id) }}" class="btn btn-outline-secondary">Back to Request</a>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Request Details</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Target URL:</strong> {{ pentest_request.target_url }}</p>
+                        <p><strong>Type:</strong> 
+                            {% if pentest_request.request_type == 'web' %}
+                                <span class="badge bg-info">Web Application</span>
+                            {% elif pentest_request.request_type == 'api' %}
+                                <span class="badge bg-success">API Security</span>
+                            {% elif pentest_request.request_type == 'mobile' %}
+                                <span class="badge bg-warning">Mobile Application</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Created:</strong> {{ pentest_request.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p><strong>Completed:</strong> {{ report.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Executive Summary</h3>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h4>Overall Severity: 
+                        {% if report.severity == 'low' %}
+                            <span class="badge bg-secondary">Low</span>
+                        {% elif report.severity == 'medium' %}
+                            <span class="badge bg-primary">Medium</span>
+                        {% elif report.severity == 'high' %}
+                            <span class="badge bg-danger">High</span>
+                        {% elif report.severity == 'critical' %}
+                            <span class="badge bg-dark">Critical</span>
+                        {% endif %}
+                    </h4>
+                </div>
+                
+                <div class="p-3 bg-light rounded">
+                    {{ report.content|safe }}
+                </div>
+            </div>
+        </div>
+        
+        {% if vulnerabilities %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Vulnerabilities ({{ vulnerabilities|length }})</h3>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="vulnerabilitiesAccordion">
+                    {% for vuln in vulnerabilities %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ vuln.id }}">
+                                <button class="accordion-button {% if loop.index > 1 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ vuln.id }}" aria-expanded="{% if loop.index == 1 %}true{% else %}false{% endif %}" aria-controls="collapse{{ vuln.id }}">
+                                    <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                        <span>{{ vuln.title }}</span>
+                                        {% if vuln.severity == 'low' %}
+                                            <span class="badge bg-secondary">Low</span>
+                                        {% elif vuln.severity == 'medium' %}
+                                            <span class="badge bg-primary">Medium</span>
+                                        {% elif vuln.severity == 'high' %}
+                                            <span class="badge bg-danger">High</span>
+                                        {% elif vuln.severity == 'critical' %}
+                                            <span class="badge bg-dark">Critical</span>
+                                        {% endif %}
+                                    </div>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ vuln.id }}" class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" aria-labelledby="heading{{ vuln.id }}" data-bs-parent="#vulnerabilitiesAccordion">
+                                <div class="accordion-body">
+                                    <div class="mb-3">
+                                        <h5>Description</h5>
+                                        <div class="p-3 bg-light rounded">
+                                            {{ vuln.description|safe }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h5>Proof of Concept</h5>
+                                        <div class="p-3 bg-light rounded">
+                                            <pre>{{ vuln.proof_of_concept }}</pre>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h5>Remediation</h5>
+                                        <div class="p-3 bg-light rounded">
+                                            {{ vuln.remediation|safe }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Vulnerabilities</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> No vulnerabilities were found during this pentest.
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Next Steps</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle"></i> What to do next?</h5>
+                    <ol>
+                        <li>Review all vulnerabilities and their remediation steps</li>
+                        <li>Implement the recommended fixes</li>
+                        <li>Request a re-test to verify that vulnerabilities have been fixed</li>
+                        <li>Contact us if you have any questions about the findings</li>
+                    </ol>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                    <a href="{{ url_for('client.view_request', request_id=pentest_request.id) }}" class="btn btn-primary">
+                        <i class="bi bi-chat"></i> Ask Questions
+                    </a>
+                    <a href="#" class="btn btn-success">
+                        <i class="bi bi-arrow-repeat"></i> Request Re-Test
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary">
+                        <i class="bi bi-download"></i> Download PDF Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

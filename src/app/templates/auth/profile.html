@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">User Profile</h3>
+                <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-primary">Edit Profile</a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Username:</strong> {{ current_user.username }}</p>
+                        <p><strong>Email:</strong> {{ current_user.email }}</p>
+                        <p><strong>Role:</strong> 
+                            {% if current_user.role == 'client' %}
+                                <span class="badge bg-secondary">Client</span>
+                            {% elif current_user.role == 'analyst' %}
+                                <span class="badge bg-primary">Analyst</span>
+                            {% elif current_user.role == 'admin' %}
+                                <span class="badge bg-dark">Admin</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Account Created:</strong> {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+                    </div>
+                    
+                    {% if current_user.role == 'analyst' and current_user.analyst %}
+                    <div class="col-md-6">
+                        <h4>Analyst Information</h4>
+                        <p><strong>Expertise:</strong> 
+                            {% for area in current_user.analyst.expertise.split(',') %}
+                                {% if area == 'web' %}
+                                    <span class="badge bg-info">Web Applications</span>
+                                {% elif area == 'api' %}
+                                    <span class="badge bg-success">API Security</span>
+                                {% elif area == 'mobile' %}
+                                    <span class="badge bg-warning">Mobile Applications</span>
+                                {% endif %}
+                            {% endfor %}
+                        </p>
+                        <p><strong>Availability:</strong>
+                            {% if current_user.analyst.availability %}
+                                <span class="badge bg-success">Available</span>
+                            {% else %}
+                                <span class="badge bg-danger">Unavailable</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Rating:</strong> {{ current_user.analyst.rating }} / 5.0</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <h4>Activity Summary</h4>
+                    {% if current_user.role == 'client' %}
+                        <p><strong>Pentest Requests:</strong> {{ current_user.client_requests.count() }}</p>
+                    {% elif current_user.role == 'analyst' and current_user.analyst %}
+                        <p><strong>Assigned Requests:</strong> {{ current_user.analyst.assigned_requests.count() }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

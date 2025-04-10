@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - Client Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>My Pentest Requests</h1>
+            <a href="{{ url_for('client.new_request') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> New Request
+            </a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">All Requests</h3>
+            </div>
+            <div class="card-body">
+                {% if pentest_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Target URL</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in pentest_requests %}
+                                    <tr>
+                                        <td>{{ request.id }}</td>
+                                        <td>{{ request.target_url }}</td>
+                                        <td>
+                                            {% if request.request_type == 'web' %}
+                                                <span class="badge bg-info">Web</span>
+                                            {% elif request.request_type == 'api' %}
+                                                <span class="badge bg-success">API</span>
+                                            {% elif request.request_type == 'mobile' %}
+                                                <span class="badge bg-warning">Mobile</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if request.status == 'pending' %}
+                                                <span class="badge bg-secondary">Pending</span>
+                                            {% elif request.status == 'assigned' %}
+                                                <span class="badge bg-primary">In Progress</span>
+                                            {% elif request.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if request.priority == 'low' %}
+                                                <span class="badge bg-secondary">Low</span>
+                                            {% elif request.priority == 'medium' %}
+                                                <span class="badge bg-primary">Medium</span>
+                                            {% elif request.priority == 'high' %}
+                                                <span class="badge bg-danger">High</span>
+                                            {% elif request.priority == 'critical' %}
+                                                <span class="badge bg-dark">Critical</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ request.created_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>
+                                            <a href="{{ url_for('client.view_request', request_id=request.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                            {% if request.status == 'completed' %}
+                                                <a href="{{ url_for('client.view_report', request_id=request.id) }}" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-file-text"></i> Report
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <p>You haven't submitted any pentest requests yet.</p>
+                        <a href="{{ url_for('client.new_request') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Create Your First Request
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

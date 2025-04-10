@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - Analyst Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Analyst Dashboard</h1>
+        <p class="lead">Welcome back, {{ current_user.username }}!</p>
+        
+        <div class="mb-5">
+            <h2>Your Assigned Requests</h2>
+            {% if assigned_requests %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Target URL</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in assigned_requests %}
+                            <tr>
+                                <td>{{ request.id }}</td>
+                                <td>{{ request.target_url }}</td>
+                                <td>
+                                    {% if request.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif request.status == 'assigned' %}
+                                        <span class="badge bg-info">Assigned</span>
+                                    {% elif request.status == 'completed' %}
+                                        <span class="badge bg-success">Completed</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.priority == 'low' %}
+                                        <span class="badge bg-secondary">Low</span>
+                                    {% elif request.priority == 'medium' %}
+                                        <span class="badge bg-primary">Medium</span>
+                                    {% elif request.priority == 'high' %}
+                                        <span class="badge bg-danger">High</span>
+                                    {% elif request.priority == 'critical' %}
+                                        <span class="badge bg-dark">Critical</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('analyst.view_request', request_id=request.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    You don't have any assigned pentest requests yet.
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="mb-4">
+            <h2>Available Requests</h2>
+            {% if unassigned_requests %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Target URL</th>
+                                <th>Priority</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in unassigned_requests %}
+                            <tr>
+                                <td>{{ request.id }}</td>
+                                <td>{{ request.target_url }}</td>
+                                <td>
+                                    {% if request.priority == 'low' %}
+                                        <span class="badge bg-secondary">Low</span>
+                                    {% elif request.priority == 'medium' %}
+                                        <span class="badge bg-primary">Medium</span>
+                                    {% elif request.priority == 'high' %}
+                                        <span class="badge bg-danger">High</span>
+                                    {% elif request.priority == 'critical' %}
+                                        <span class="badge bg-dark">Critical</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ request.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('analyst.assign_request', request_id=request.id) }}" class="btn btn-sm btn-success">Assign to Me</a>
+                                    <a href="{{ url_for('analyst.view_request', request_id=request.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    There are no unassigned pentest requests at the moment.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

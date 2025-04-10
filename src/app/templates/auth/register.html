@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - Register{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3 class="card-title">Register</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="form-text">Users with @growthguard.com email will automatically be assigned admin privileges.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-select" id="role" name="role">
+                            <option value="client">Client</option>
+                            <option value="analyst">Analyst</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 analyst-fields" style="display: none;">
+                        <label for="expertise" class="form-label">Expertise (for Analysts)</label>
+                        <select class="form-select" id="expertise" name="expertise" multiple>
+                            <option value="web">Web Applications</option>
+                            <option value="api">API Security</option>
+                            <option value="mobile">Mobile Applications</option>
+                        </select>
+                        <div class="form-text">Hold Ctrl/Cmd to select multiple areas of expertise.</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+                <div class="mt-3 text-center">
+                    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('role');
+        const analystFields = document.querySelector('.analyst-fields');
+        
+        roleSelect.addEventListener('change', function() {
+            if (this.value === 'analyst') {
+                analystFields.style.display = 'block';
+            } else {
+                analystFields.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

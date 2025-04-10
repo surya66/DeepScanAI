@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - View Request (Analyst){% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Pentest Request #{{ pentest_request.id }}</h1>
+            <a href="{{ url_for('analyst.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Request Details</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Target URL:</strong> {{ pentest_request.target_url }}</p>
+                        <p><strong>Status:</strong> 
+                            {% if pentest_request.status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% elif pentest_request.status == 'assigned' %}
+                                <span class="badge bg-info">Assigned</span>
+                            {% elif pentest_request.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Priority:</strong>
+                            {% if pentest_request.priority == 'low' %}
+                                <span class="badge bg-secondary">Low</span>
+                            {% elif pentest_request.priority == 'medium' %}
+                                <span class="badge bg-primary">Medium</span>
+                            {% elif pentest_request.priority == 'high' %}
+                                <span class="badge bg-danger">High</span>
+                            {% elif pentest_request.priority == 'critical' %}
+                                <span class="badge bg-dark">Critical</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Client:</strong> {{ client.username }}</p>
+                        <p><strong>Created:</strong> {{ pentest_request.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p><strong>Last Updated:</strong> {{ pentest_request.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <h4>Scope</h4>
+                    <div class="p-3 bg-light rounded">
+                        <pre>{{ pentest_request.scope }}</pre>
+                    </div>
+                </div>
+                
+                {% if pentest_request.credentials %}
+                    <div class="mt-3">
+                        <h4>Credentials</h4>
+                        <div class="p-3 bg-light rounded">
+                            <pre>{{ pentest_request.credentials }}</pre>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <div class="mt-4">
+                    {% if pentest_request.status == 'pending' %}
+                        <a href="{{ url_for('analyst.assign_request', request_id=pentest_request.id) }}" class="btn btn-success">Assign to Me</a>
+                    {% elif pentest_request.status == 'assigned' and not report %}
+                        <a href="{{ url_for('analyst.submit_report', request_id=pentest_request.id) }}" class="btn btn-primary">Submit Report</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        {% if report %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Report</h3>
+                </div>
+                <div class="card-body">
+                    <p><strong>Severity:</strong>
+                        {% if report.severity == 'low' %}
+                            <span class="badge bg-secondary">Low</span>
+                        {% elif report.severity == 'medium' %}
+                            <span class="badge bg-primary">Medium</span>
+                        {% elif report.severity == 'high' %}
+                            <span class="badge bg-danger">High</span>
+                        {% elif report.severity == 'critical' %}
+                            <span class="badge bg-dark">Critical</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Submitted:</strong> {{ report.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    
+                    <div class="mt-3">
+                        <h4>Executive Summary</h4>
+                        <div class="p-3 bg-light rounded">
+                            {{ report.content }}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <a href="{{ url_for('analyst.view_report', report_id=report.id) }}" class="btn btn-primary">View Full Report</a>
+                        <a href="{{ url_for('analyst.add_vulnerability', request_id=pentest_request.id) }}" class="btn btn-outline-primary">Add Vulnerability</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Messages</h3>
+            </div>
+            <div class="card-body">
+                <div class="chat-container" style="max-height: 400px; overflow-y: auto;">
+                    {% for message in messages %}
+                        <div class="chat-message mb-3 {% if message.is_ai %}chat-message-ai{% elif message.user_id == current_user.id %}chat-message-self{% else %}chat-message-client{% endif %}">
+                            <div class="chat-message-content p-3 rounded 
+                                {% if message.is_ai %}
+                                    bg-light
+                                {% elif message.user_id == current_user.id %}
+                                    bg-primary text-white
+                                {% else %}
+                                    bg-secondary text-white
+                                {% endif %}">
+                                {% if message.is_ai %}
+                                    <strong>AI Copilot</strong>
+                                {% elif message.user_id == current_user.id %}
+                                    <strong>You</strong>
+                                {% else %}
+                                    <strong>{{ message.user.username }}</strong>
+                                {% endif %}
+                                <div class="mt-1">{{ message.content }}</div>
+                                <small class="{% if message.is_ai %}text-muted{% else %}text-white-50{% endif %}">{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                {% if pentest_request.status == 'assigned' and pentest_request.analyst_id == current_user.analyst.id %}
+                    <form method="POST" action="{{ url_for('analyst.send_message', request_id=pentest_request.id) }}" class="mt-3">
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Send a message</label>
+                            <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

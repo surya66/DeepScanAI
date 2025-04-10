@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - File Management{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>File Management for Request #{{ pentest_request.id }}</h1>
+            {% if current_user.role == 'client' %}
+                <a href="{{ url_for('client.view_request', request_id=pentest_request.id) }}" class="btn btn-outline-secondary">Back to Request</a>
+            {% else %}
+                <a href="{{ url_for('analyst.view_request', request_id=pentest_request.id) }}" class="btn btn-outline-secondary">Back to Request</a>
+            {% endif %}
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Upload File</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('file.upload_file', request_id=pentest_request.id) }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Select File</label>
+                        <input class="form-control" type="file" id="file" name="file" required>
+                        <div class="form-text">
+                            Allowed file types: PDF, PNG, JPG, JPEG, GIF, TXT, DOC, DOCX, XLS, XLSX, CSV, ZIP
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Files</h3>
+            </div>
+            <div class="card-body">
+                {% if files %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Uploaded By</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for file in files %}
+                                    <tr>
+                                        <td>{{ file.filename }}</td>
+                                        <td>
+                                            {{ file.uploader.username }}
+                                            {% if file.uploader.role == 'analyst' %}
+                                                <span class="badge bg-primary">Analyst</span>
+                                            {% elif file.uploader.role == 'client' %}
+                                                <span class="badge bg-secondary">Client</span>
+                                            {% elif file.uploader.role == 'admin' %}
+                                                <span class="badge bg-dark">Admin</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ file.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <a href="{{ url_for('file.download_file', file_id=file.id) }}" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-download"></i> Download
+                                            </a>
+                                            {% if current_user.id == file.uploaded_by or current_user.role == 'admin' %}
+                                                <form method="POST" action="{{ url_for('file.delete_file', file_id=file.id) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this file?')">
+                                                        <i class="bi bi-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No files have been uploaded for this request yet.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

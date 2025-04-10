@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - New Pentest Request{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">New Pentest Request</h3>
+                <a href="{{ url_for('client.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('client.new_request') }}">
+                    <div class="mb-3">
+                        <label for="target_url" class="form-label">Target URL</label>
+                        <input type="text" class="form-control" id="target_url" name="target_url" required placeholder="https://example.com or api.example.com">
+                        <div class="form-text">Enter the URL of the application or API you want to test.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="request_type" class="form-label">Request Type</label>
+                        <select class="form-select" id="request_type" name="request_type" required>
+                            <option value="">Select request type</option>
+                            <option value="web">Web Application</option>
+                            <option value="api">API Security</option>
+                            <option value="mobile">Mobile Application</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="priority" class="form-label">Priority</label>
+                        <select class="form-select" id="priority" name="priority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="scope" class="form-label">Scope</label>
+                        <textarea class="form-control" id="scope" name="scope" rows="5" required placeholder="Describe what you want to test, specific features or flows to focus on, and any exclusions."></textarea>
+                        <div class="form-text">Be as specific as possible about what you want tested and any areas to focus on.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="credentials" class="form-label">Credentials (Optional)</label>
+                        <textarea class="form-control" id="credentials" name="credentials" rows="3" placeholder="username/password or API keys needed for testing"></textarea>
+                        <div class="form-text">Provide any credentials needed for testing. This information will only be shared with assigned analysts.</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

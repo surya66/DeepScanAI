@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-4 mb-4">DeepScan</h1>
+        <h2 class="mb-4">AI-Mediated Human Pentest Coordination Platform</h2>
+        <p class="lead">
+            A chat-only interface where clients request pentests via natural language, human analysts manually perform tests, 
+            and findings are delivered conversationally—no automation, no tool integrations, pure human expertise.
+        </p>
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">For Clients</h5>
+                        <p class="card-text">No dashboards to learn—just ask, get expert answers. Direct access to human expertise without tool noise.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">For Analysts</h5>
+                        <p class="card-text">Focus on pentesting, not tool configuration. AI handles client communications and task routing.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">For Security</h5>
+                        <p class="card-text">Zero false positives. All findings validated by experts. Complex flaws and business logic exploits reported.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-5">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-3">Register</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

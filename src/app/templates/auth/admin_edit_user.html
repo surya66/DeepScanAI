@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - Edit User{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">Edit User: {{ user.username }}</h3>
+                <a href="{{ url_for('auth.admin_users') }}" class="btn btn-outline-secondary">Back to User Management</a>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.admin_edit_user', user_id=user.id) }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        <div class="form-text">Users with @growthguard.com email will automatically be assigned admin privileges.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="client" {% if user.role == 'client' %}selected{% endif %}>Client</option>
+                            <option value="analyst" {% if user.role == 'analyst' %}selected{% endif %}>Analyst</option>
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3 analyst-fields" {% if user.role != 'analyst' %}style="display: none;"{% endif %}>
+                        <label for="expertise" class="form-label">Expertise (for Analysts)</label>
+                        <select class="form-select" id="expertise" name="expertise" multiple>
+                            <option value="web" {% if user.analyst and 'web' in user.analyst.expertise.split(',') %}selected{% endif %}>Web Applications</option>
+                            <option value="api" {% if user.analyst and 'api' in user.analyst.expertise.split(',') %}selected{% endif %}>API Security</option>
+                            <option value="mobile" {% if user.analyst and 'mobile' in user.analyst.expertise.split(',') %}selected{% endif %}>Mobile Applications</option>
+                        </select>
+                        <div class="form-text">Hold Ctrl/Cmd to select multiple areas of expertise.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password">
+                        <div class="form-text">Leave blank to keep current password.</div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('role');
+        const analystFields = document.querySelector('.analyst-fields');
+        
+        roleSelect.addEventListener('change', function() {
+            if (this.value === 'analyst') {
+                analystFields.style.display = 'block';
+            } else {
+                analystFields.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

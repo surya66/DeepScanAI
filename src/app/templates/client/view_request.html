@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - View Request{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Request #{{ pentest_request.id }}</h1>
+            <div>
+                <a href="{{ url_for('client.dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                {% if pentest_request.status == 'completed' %}
+                    <a href="{{ url_for('client.view_report', request_id=pentest_request.id) }}" class="btn btn-success">
+                        <i class="bi bi-file-text"></i> View Full Report
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Request Details</h3>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Target URL:</strong> {{ pentest_request.target_url }}</p>
+                        <p><strong>Type:</strong> 
+                            {% if pentest_request.request_type == 'web' %}
+                                <span class="badge bg-info">Web Application</span>
+                            {% elif pentest_request.request_type == 'api' %}
+                                <span class="badge bg-success">API Security</span>
+                            {% elif pentest_request.request_type == 'mobile' %}
+                                <span class="badge bg-warning">Mobile Application</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Status:</strong> 
+                            {% if pentest_request.status == 'pending' %}
+                                <span class="badge bg-secondary">Pending</span>
+                            {% elif pentest_request.status == 'assigned' %}
+                                <span class="badge bg-primary">In Progress</span>
+                            {% elif pentest_request.status == 'completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Priority:</strong>
+                            {% if pentest_request.priority == 'low' %}
+                                <span class="badge bg-secondary">Low</span>
+                            {% elif pentest_request.priority == 'medium' %}
+                                <span class="badge bg-primary">Medium</span>
+                            {% elif pentest_request.priority == 'high' %}
+                                <span class="badge bg-danger">High</span>
+                            {% elif pentest_request.priority == 'critical' %}
+                                <span class="badge bg-dark">Critical</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Created:</strong> {{ pentest_request.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        {% if pentest_request.analyst %}
+                            <p><strong>Assigned To:</strong> {{ pentest_request.analyst.user.username }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Scope</h3>
+                    </div>
+                    <div class="card-body">
+                        <pre class="p-3 bg-light rounded">{{ pentest_request.scope }}</pre>
+                    </div>
+                </div>
+                
+                {% if pentest_request.credentials %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Credentials</h3>
+                    </div>
+                    <div class="card-body">
+                        <pre class="p-3 bg-light rounded">{{ pentest_request.credentials }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if files %}
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">Files</h3>
+                        <a href="{{ url_for('file.list_files', request_id=pentest_request.id) }}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-folder"></i> Manage Files
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for file in files %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ file.filename }}
+                                    <a href="{{ url_for('file.download_file', file_id=file.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-8">
+                {% if report and pentest_request.status == 'completed' %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">Report Summary</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h4>Overall Severity: 
+                                {% if report.severity == 'low' %}
+                                    <span class="badge bg-secondary">Low</span>
+                                {% elif report.severity == 'medium' %}
+                                    <span class="badge bg-primary">Medium</span>
+                                {% elif report.severity == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                {% elif report.severity == 'critical' %}
+                                    <span class="badge bg-dark">Critical</span>
+                                {% endif %}
+                            </h4>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h5>Executive Summary</h5>
+                            <div class="p-3 bg-light rounded">
+                                {{ report.content|safe }}
+                            </div>
+                        </div>
+                        
+                        {% if vulnerabilities %}
+                        <div class="mb-3">
+                            <h5>Vulnerabilities Found ({{ vulnerabilities|length }})</h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Severity</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for vuln in vulnerabilities %}
+                                            <tr>
+                                                <td>{{ vuln.title }}</td>
+                                                <td>
+                                                    {% if vuln.severity == 'low' %}
+                                                        <span class="badge bg-secondary">Low</span>
+                                                    {% elif vuln.severity == 'medium' %}
+                                                        <span class="badge bg-primary">Medium</span>
+                                                    {% elif vuln.severity == 'high' %}
+                                                        <span class="badge bg-danger">High</span>
+                                                    {% elif vuln.severity == 'critical' %}
+                                                        <span class="badge bg-dark">Critical</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-center mt-3">
+                                <a href="{{ url_for('client.view_report', request_id=pentest_request.id) }}" class="btn btn-primary">
+                                    View Full Report
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Conversation</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chat-container mb-4" style="max-height: 400px; overflow-y: auto;">
+                            {% for message in messages %}
+                                <div class="chat-message mb-3 {% if message.is_ai %}chat-message-ai{% else %}chat-message-user{% endif %}">
+                                    <div class="chat-message-header">
+                                        {% if message.is_ai %}
+                                            <strong>AI Assistant</strong>
+                                        {% elif message.user %}
+                                            <strong>{{ message.user.username }}</strong>
+                                        {% else %}
+                                            <strong>System</strong>
+                                        {% endif %}
+                                        <small class="text-muted">{{ message.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                    </div>
+                                    <div class="chat-message-content p-3 {% if message.is_ai %}bg-light{% else %}bg-primary text-white{% endif %} rounded">
+                                        {{ message.content }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <form method="POST" action="{{ url_for('client.send_message', request_id=pentest_request.id) }}">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="content" placeholder="Type your message here..." required>
+                                <button type="submit" class="btn btn-primary">Send</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-message-user .chat-message-content {
+        margin-left: auto;
+        max-width: 80%;
+    }
+    
+    .chat-message-ai .chat-message-content {
+        margin-right: auto;
+        max-width: 80%;
+    }
+    
+    .chat-message-header {
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+{% endblock %}

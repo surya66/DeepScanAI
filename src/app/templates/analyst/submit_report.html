@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}DeepScan - Submit Report{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Submit Report for Request #{{ pentest_request.id }}</h1>
+            <a href="{{ url_for('analyst.view_request', request_id=pentest_request.id) }}" class="btn btn-outline-secondary">Back to Request</a>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">Request Details</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Target URL:</strong> {{ pentest_request.target_url }}</p>
+                        <p><strong>Request Type:</strong> {{ pentest_request.request_type }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Created:</strong> {{ pentest_request.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <p><strong>Priority:</strong>
+                            {% if pentest_request.priority == 'low' %}
+                                <span class="badge bg-secondary">Low</span>
+                            {% elif pentest_request.priority == 'medium' %}
+                                <span class="badge bg-primary">Medium</span>
+                            {% elif pentest_request.priority == 'high' %}
+                                <span class="badge bg-danger">High</span>
+                            {% elif pentest_request.priority == 'critical' %}
+                                <span class="badge bg-dark">Critical</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <h4>Scope</h4>
+                    <div class="p-3 bg-light rounded">
+                        <pre>{{ pentest_request.scope }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Submit Report</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('analyst.submit_report', request_id=pentest_request.id) }}">
+                    <div class="mb-3">
+                        <label for="severity" class="form-label">Overall Severity</label>
+                        <select class="form-select" id="severity" name="severity" required>
+                            <option value="">Select severity level</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Executive Summary</label>
+                        <textarea class="form-control" id="content" name="content" rows="10" required></textarea>
+                        <div class="form-text">Provide a summary of your findings, including the number and severity of vulnerabilities found.</div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> After submitting this report, you can add individual vulnerabilities with detailed information.
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('analyst.view_request', request_id=pentest_request.id) }}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
